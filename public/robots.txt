@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /watchlist
+Disallow: /portfolio
+Disallow: /orders
+Disallow: /ai
+Disallow: /settings
+Disallow: /auth

@@ -115,23 +115,46 @@ function AuthPage() {
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Brand side */}
       <div className="relative hidden overflow-hidden border-r border-border bg-surface-1 lg:block">
-        <div className="absolute inset-0 bg-grid opacity-70" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-grid opacity-40" />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 30% 20%, oklch(0.72 0.16 158 / 0.20), transparent 70%), radial-gradient(50% 50% at 90% 90%, oklch(0.72 0.14 235 / 0.15), transparent 70%)",
+          }}
+        />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Activity className="h-4 w-4" strokeWidth={2.5} />
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-[0_0_16px_-2px_var(--color-primary)]">
+              <Activity className="h-4 w-4" strokeWidth={2.75} />
             </span>
             Apex Trade
           </Link>
-          <div>
-            <blockquote className="max-w-md text-2xl font-medium tracking-tight text-foreground">
-              &ldquo;Every institutional workflow, in a single terminal.&rdquo;
-            </blockquote>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Multi-asset watchlists, dockable widgets, encrypted broker
-              connections, and an AI co-pilot that knows your book.
-            </p>
+          <div className="space-y-6">
+            <h2 className="max-w-md text-3xl font-semibold leading-tight tracking-tight text-foreground">
+              The institutional workspace for every trade you make.
+            </h2>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bull" />
+                Real-time markets, dockable widgets, and a portfolio-aware AI co-pilot.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bull" />
+                Cash & margin accounts with server-validated shorts and buy-to-cover.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bull" />
+                Row-level security, hashed broker keys, full audit trail.
+              </li>
+            </ul>
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-2/60 p-3 text-xs text-muted-foreground">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/15 text-primary font-semibold">$</span>
+              <div>
+                <div className="text-foreground">$100,000 paper cash on signup.</div>
+                No credit card. Upgrade any time.
+              </div>
+            </div>
           </div>
         </div>
       </div>

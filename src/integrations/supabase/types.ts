@@ -255,27 +255,36 @@ export type Database = {
         Row: {
           asset_class: Database["public"]["Enums"]["asset_class"]
           avg_cost: number
+          borrow_fee_accrued: number
           id: string
           portfolio_id: string
           quantity: number
+          realized_pnl: number
+          side: string
           symbol: string
           updated_at: string
         }
         Insert: {
           asset_class?: Database["public"]["Enums"]["asset_class"]
           avg_cost?: number
+          borrow_fee_accrued?: number
           id?: string
           portfolio_id: string
           quantity?: number
+          realized_pnl?: number
+          side?: string
           symbol: string
           updated_at?: string
         }
         Update: {
           asset_class?: Database["public"]["Enums"]["asset_class"]
           avg_cost?: number
+          borrow_fee_accrued?: number
           id?: string
           portfolio_id?: string
           quantity?: number
+          realized_pnl?: number
+          side?: string
           symbol?: string
           updated_at?: string
         }
@@ -404,36 +413,42 @@ export type Database = {
       }
       portfolios: {
         Row: {
+          account_type: string
           base_currency: string
           broker_connection_id: string | null
           cash_balance: number
           created_at: string
           id: string
           is_paper: boolean
+          margin_multiplier: number
           name: string
           updated_at: string
           user_id: string
           workspace_id: string | null
         }
         Insert: {
+          account_type?: string
           base_currency?: string
           broker_connection_id?: string | null
           cash_balance?: number
           created_at?: string
           id?: string
           is_paper?: boolean
+          margin_multiplier?: number
           name: string
           updated_at?: string
           user_id: string
           workspace_id?: string | null
         }
         Update: {
+          account_type?: string
           base_currency?: string
           broker_connection_id?: string | null
           cash_balance?: number
           created_at?: string
           id?: string
           is_paper?: boolean
+          margin_multiplier?: number
           name?: string
           updated_at?: string
           user_id?: string
@@ -762,6 +777,20 @@ export type Database = {
       is_workspace_member: {
         Args: { _user: string; _ws: string }
         Returns: boolean
+      }
+      place_paper_order: {
+        Args: {
+          _limit_price: number
+          _mark_price: number
+          _portfolio_id: string
+          _quantity: number
+          _side: string
+          _stop_price: number
+          _symbol: string
+          _tif: string
+          _type: string
+        }
+        Returns: Json
       }
     }
     Enums: {

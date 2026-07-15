@@ -70,7 +70,6 @@ export function OrdersPage() {
 
   const place = useMutation({
     mutationFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
       const parsed = OrderSchema.safeParse({
         symbol: symbol.toUpperCase().trim(),
         side, type, tif,
@@ -81,56 +80,23 @@ export function OrdersPage() {
       if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid order");
       if ((type === "limit" || type === "stop_limit") && !parsed.data.limit_price) throw new Error("Limit price required");
       if ((type === "stop" || type === "stop_limit" || type === "trailing_stop") && !parsed.data.stop_price) throw new Error("Stop price required");
+      if (!portfolioId) throw new Error("No portfolio found. Reload the page.");
 
-      // Simulate immediate fill for market orders in paper mode.
-      const isMarket = type === "market";
-      const fillPrice = isMarket ? quote.price : parsed.data.limit_price ?? null;
-      const now = new Date().toISOString();
-
-      const { error } = await supabase.from("orders").insert({
-        user_id: u.user!.id,
-        portfolio_id: portfolioId,
-        symbol: parsed.data.symbol,
-        side: parsed.data.side, type: parsed.data.type, tif: parsed.data.tif,
-        quantity: parsed.data.quantity,
-        limit_price: parsed.data.limit_price ?? null,
-        stop_price: parsed.data.stop_price ?? null,
-        status: isMarket ? "filled" : "open",
-        submitted_at: now,
-        filled_at: isMarket ? now : null,
-        filled_qty: isMarket ? parsed.data.quantity : 0,
-        avg_fill_price: isMarket ? fillPrice : null,
+      // Server-side atomic placement + validation via RPC.
+      // Blocks selling more than held (cash accounts) and enforces buying power on margin.
+      const { data, error } = await supabase.rpc("place_paper_order", {
+        _portfolio_id: portfolioId,
+        _symbol: parsed.data.symbol,
+        _side: parsed.data.side,
+        _type: parsed.data.type,
+        _tif: parsed.data.tif,
+        _quantity: parsed.data.quantity,
+        _limit_price: (parsed.data.limit_price ?? null) as unknown as number,
+        _stop_price: (parsed.data.stop_price ?? null) as unknown as number,
+        _mark_price: quote.price,
       });
-      if (error) throw error;
-
-      // Update paper holdings for market fills
-      if (isMarket && portfolioId) {
-        const { data: existing } = await supabase.from("holdings").select("id,quantity,avg_cost")
-          .eq("portfolio_id", portfolioId).eq("symbol", parsed.data.symbol).maybeSingle();
-        const delta = parsed.data.side === "buy" ? parsed.data.quantity : -parsed.data.quantity;
-        if (existing) {
-          const newQty = Number(existing.quantity) + delta;
-          if (newQty <= 0) {
-            await supabase.from("holdings").delete().eq("id", existing.id);
-          } else if (parsed.data.side === "buy") {
-            const newCost = ((Number(existing.avg_cost) * Number(existing.quantity)) + (fillPrice! * parsed.data.quantity)) / newQty;
-            await supabase.from("holdings").update({ quantity: newQty, avg_cost: newCost }).eq("id", existing.id);
-          } else {
-            await supabase.from("holdings").update({ quantity: newQty }).eq("id", existing.id);
-          }
-        } else if (parsed.data.side === "buy") {
-          await supabase.from("holdings").insert({
-            portfolio_id: portfolioId, symbol: parsed.data.symbol,
-            quantity: parsed.data.quantity, avg_cost: fillPrice!,
-          });
-        }
-      }
-
-      await supabase.from("notifications").insert({
-        user_id: u.user!.id, kind: "order",
-        title: `${parsed.data.side.toUpperCase()} ${parsed.data.quantity} ${parsed.data.symbol}`,
-        body: `${type.replace("_"," ")} order ${isMarket ? "filled" : "submitted"} @ ${fillPrice ? formatCurrency(fillPrice) : "market"}`,
-      });
+      if (error) throw new Error(error.message);
+      return data;
     },
     onSuccess: () => {
       toast.success(`${side === "buy" ? "Bought" : "Sold"} ${qty} ${symbol.toUpperCase()}`);

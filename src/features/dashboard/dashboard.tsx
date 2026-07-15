@@ -43,6 +43,7 @@ interface Portfolio {
 
 export function Dashboard() {
   const qc = useQueryClient();
+  void qc;
 
   const { data: portfolio } = useQuery({
     queryKey: ["me:portfolio"],
@@ -50,6 +51,7 @@ export function Dashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return { portfolio: null, holdings: [] };
 
+      // Provision an empty cash portfolio on first visit — no seeded holdings.
       let { data: pf } = await supabase
         .from("portfolios")
         .select("id,name,cash_balance,base_currency")
@@ -58,45 +60,28 @@ export function Dashboard() {
         .limit(1)
         .maybeSingle();
 
-      // Auto-seed a paper portfolio the first time the user lands here.
       if (!pf) {
         const { data: inserted } = await supabase
           .from("portfolios")
           .insert({
             user_id: u.user.id,
-            name: "Paper Portfolio",
+            name: "Cash Account",
             base_currency: "USD",
             cash_balance: 100000,
             is_paper: true,
+            account_type: "cash",
+            margin_multiplier: 1,
           })
           .select("id,name,cash_balance,base_currency")
           .single();
         pf = inserted;
-
-        if (pf) {
-          const seed = [
-            { symbol: "AAPL", quantity: 40, avg_cost: 178.5 },
-            { symbol: "NVDA", quantity: 25, avg_cost: 120.2 },
-            { symbol: "MSFT", quantity: 15, avg_cost: 410.0 },
-            { symbol: "SPY", quantity: 30, avg_cost: 520.0 },
-            { symbol: "BTC", quantity: 0.35, avg_cost: 62000 },
-          ];
-          await supabase.from("holdings").insert(
-            seed.map((s) => ({
-              portfolio_id: pf!.id,
-              symbol: s.symbol,
-              quantity: s.quantity,
-              avg_cost: s.avg_cost,
-              asset_class: s.symbol === "BTC" ? "crypto" : s.symbol === "SPY" ? "etf" : "equity",
-            })),
-          );
-        }
       }
 
       const { data: holdings } = await supabase
         .from("holdings")
         .select("id,symbol,quantity,avg_cost")
-        .eq("portfolio_id", pf?.id ?? "00000000-0000-0000-0000-000000000000");
+        .eq("portfolio_id", pf?.id ?? "00000000-0000-0000-0000-000000000000")
+        .eq("side", "long");
 
       return { portfolio: pf as Portfolio | null, holdings: (holdings as Holding[]) ?? [] };
     },

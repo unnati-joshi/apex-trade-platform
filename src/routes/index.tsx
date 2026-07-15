@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Activity,
@@ -732,11 +732,3 @@ function Footer() {
     </footer>
   );
 }
-
-// Reset preview scroll on hero mount (avoids landing mid-page during hot reloads).
-function useTopOnMount() {
-  useEffect(() => {
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-  }, []);
-}
-void useTopOnMount;

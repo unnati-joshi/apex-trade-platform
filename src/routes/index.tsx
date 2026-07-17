@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Apex Trade — Institutional Trading Platform" },
       {
         property: "og:description",
-        content: "Bloomberg-grade terminal. Multi-asset execution, margin support, AI co-pilot.",
+        content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

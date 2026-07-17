@@ -78,23 +78,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Apex Trade — Institutional Trading Terminal" },
+      { title: "Apex Trade — Institutional Trading Platform" },
       {
         name: "description",
         content:
-          "Apex Trade is an institutional-grade trading terminal for equities, ETFs, and crypto. Real-time watchlists, portfolios, order management, and an AI co-pilot.",
+          "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
       },
       { name: "theme-color", content: "#0b1220" },
-      { property: "og:title", content: "Apex Trade — Institutional Trading Terminal" },
+      { property: "og:title", content: "Apex Trade — Institutional Trading Platform" },
       {
         property: "og:description",
         content:
-          "Real-time watchlists, portfolios, order management, and AI market intelligence. Built for professional traders.",
+          "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Apex Trade" },
-      { name: "twitter:description", content: "Institutional-grade trading terminal." },
+      { name: "twitter:title", content: "Apex Trade — Institutional Trading Platform" },
+      { name: "twitter:description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

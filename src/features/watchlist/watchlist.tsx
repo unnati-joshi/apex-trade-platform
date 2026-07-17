@@ -1,16 +1,12 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getQuote, searchSymbols } from "@/lib/mock-market";
+import { useQuotes, useSymbolSearch, symbolMeta } from "@/lib/market";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Trash2, X, ListChecks } from "lucide-react";
@@ -18,8 +14,8 @@ import { toast } from "sonner";
 import { formatCurrency, formatPercent, pctClass } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-interface Watchlist { id: string; name: string; color: string; }
-interface WLItem { id: string; watchlist_id: string; symbol: string; }
+interface Watchlist { id: string; name: string; color: string }
+interface WLItem { id: string; watchlist_id: string; symbol: string }
 
 export function WatchlistPage() {
   const qc = useQueryClient();
@@ -33,28 +29,12 @@ export function WatchlistPage() {
     queryFn: async (): Promise<Watchlist[]> => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return [];
-      let { data } = await supabase
+      const { data } = await supabase
         .from("watchlists")
         .select("id,name,color")
         .eq("user_id", u.user.id)
         .order("sort_order")
         .order("created_at");
-      if (!data || data.length === 0) {
-        const { data: created } = await supabase
-          .from("watchlists")
-          .insert([
-            { user_id: u.user.id, name: "Mega Cap Tech", color: "emerald" },
-            { user_id: u.user.id, name: "Crypto", color: "cyan" },
-          ])
-          .select("id,name,color");
-        if (created) {
-          await supabase.from("watchlist_items").insert([
-            ...["AAPL", "MSFT", "NVDA", "GOOGL", "META"].map((s) => ({ watchlist_id: created[0].id, symbol: s, asset_class: "equity" as const })),
-            ...["BTC", "ETH", "SOL"].map((s) => ({ watchlist_id: created[1].id, symbol: s, asset_class: "crypto" as const })),
-          ]);
-        }
-        data = created ?? [];
-      }
       return (data as Watchlist[]) ?? [];
     },
   });
@@ -78,12 +58,16 @@ export function WatchlistPage() {
     },
   });
 
+  const symbols = items.map((i) => i.symbol);
+  const { data: quotes = [] } = useQuotes(symbols);
+  const quoteBy = useMemo(() => new Map(quotes.map((q) => [q.symbol, q])), [quotes]);
+
+  const { data: searchResults = [], isFetching: searching } = useSymbolSearch(symSearch);
+
   const createList = useMutation({
     mutationFn: async (name: string) => {
       const { data: u } = await supabase.auth.getUser();
-      const { error } = await supabase.from("watchlists").insert({
-        user_id: u.user!.id, name, color: "emerald",
-      });
+      const { error } = await supabase.from("watchlists").insert({ user_id: u.user!.id, name, color: "emerald" });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -110,7 +94,7 @@ export function WatchlistPage() {
     mutationFn: async (symbol: string) => {
       if (!active) return;
       const { error } = await supabase.from("watchlist_items").insert({
-        watchlist_id: active.id, symbol, asset_class: symbol === "BTC" || symbol === "ETH" || symbol === "SOL" ? "crypto" : "equity",
+        watchlist_id: active.id, symbol, asset_class: "equity" as const,
       });
       if (error) throw error;
     },
@@ -126,9 +110,7 @@ export function WatchlistPage() {
       const { error } = await supabase.from("watchlist_items").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["watchlist_items", active?.id] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["watchlist_items", active?.id] }),
   });
 
   return (
@@ -147,13 +129,16 @@ export function WatchlistPage() {
           </CardHeader>
           <CardContent className="space-y-1 p-2">
             {isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="mb-1 h-9" />)}
+            {(lists?.length ?? 0) === 0 && !isLoading && (
+              <div className="p-4 text-center text-xs text-muted-foreground">Create your first watchlist below.</div>
+            )}
             {lists?.map((l) => (
               <button
                 key={l.id}
                 onClick={() => setActiveId(l.id)}
                 className={cn(
                   "group flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm transition-colors",
-                  (active?.id === l.id ? "bg-accent text-accent-foreground" : "hover:bg-accent/60"),
+                  active?.id === l.id ? "bg-accent text-accent-foreground" : "hover:bg-accent/60",
                 )}
               >
                 <span className="flex items-center gap-2">
@@ -169,12 +154,7 @@ export function WatchlistPage() {
               onSubmit={(e) => { e.preventDefault(); if (newListName.trim()) createList.mutate(newListName.trim()); }}
               className="mt-2 flex gap-1 border-t border-border pt-2"
             >
-              <Input
-                value={newListName}
-                onChange={(e) => setNewListName(e.target.value)}
-                placeholder="New list…"
-                className="h-8 text-xs"
-              />
+              <Input value={newListName} onChange={(e) => setNewListName(e.target.value)} placeholder="New list…" className="h-8 text-xs" />
               <Button size="icon" variant="ghost" className="h-8 w-8" type="submit" disabled={createList.isPending}>
                 <Plus className="h-4 w-4" />
               </Button>
@@ -190,30 +170,31 @@ export function WatchlistPage() {
             </div>
             <Dialog open={addSymOpen} onOpenChange={setAddSymOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" disabled={!active}>
-                  <Plus className="mr-1 h-4 w-4" /> Add symbol
-                </Button>
+                <Button size="sm" disabled={!active}><Plus className="mr-1 h-4 w-4" /> Add symbol</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Add symbol</DialogTitle></DialogHeader>
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input value={symSearch} onChange={(e) => setSymSearch(e.target.value)} placeholder="Search AAPL, BTC…" className="pl-9" />
+                  <Input value={symSearch} onChange={(e) => setSymSearch(e.target.value)} placeholder="Search AAPL, TSLA, MSFT…" className="pl-9" autoFocus />
                 </div>
                 <div className="max-h-80 overflow-auto rounded-md border border-border">
-                  {searchSymbols(symSearch).map((q) => (
+                  {symSearch.trim().length === 0 && (
+                    <div className="p-6 text-center text-xs text-muted-foreground">Start typing to search real symbols.</div>
+                  )}
+                  {searching && <div className="p-6 text-center text-xs text-muted-foreground">Searching…</div>}
+                  {!searching && symSearch && searchResults.length === 0 && (
+                    <div className="p-6 text-center text-xs text-muted-foreground">No matches found.</div>
+                  )}
+                  {searchResults.map((r) => (
                     <button
-                      key={q.symbol}
+                      key={r.symbol}
                       className="flex w-full items-center justify-between border-b border-border px-3 py-2 text-left last:border-b-0 hover:bg-accent"
-                      onClick={() => { addSymbol.mutate(q.symbol); setAddSymOpen(false); setSymSearch(""); }}
+                      onClick={() => { addSymbol.mutate(r.symbol); setAddSymOpen(false); setSymSearch(""); }}
                     >
                       <div>
-                        <div className="font-mono text-sm font-medium">{q.symbol}</div>
-                        <div className="truncate text-xs text-muted-foreground">{q.name}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="numeric text-sm">{formatCurrency(q.price)}</div>
-                        <div className={`numeric text-xs ${pctClass(q.changePct)}`}>{formatPercent(q.changePct)}</div>
+                        <div className="font-mono text-sm font-medium">{r.symbol}</div>
+                        <div className="truncate text-xs text-muted-foreground">{r.name}</div>
                       </div>
                     </button>
                   ))}
@@ -239,33 +220,32 @@ export function WatchlistPage() {
                     <TableHead>Sector</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead className="text-right">Change</TableHead>
-                    <TableHead className="text-right">Volume</TableHead>
+                    <TableHead className="text-right">Day range</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.map((it) => {
-                    const q = getQuote(it.symbol);
+                    const meta = symbolMeta(it.symbol);
+                    const q = quoteBy.get(it.symbol);
+                    const price = q?.price ?? 0;
+                    const changePct = q?.changePct ?? 0;
                     return (
                       <TableRow key={it.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="grid h-7 w-7 place-items-center rounded-md bg-surface-2 text-[10px] font-semibold">
-                              {it.symbol.slice(0, 2)}
-                            </span>
+                            <span className="grid h-7 w-7 place-items-center rounded-md bg-surface-2 text-[10px] font-semibold">{it.symbol.slice(0, 2)}</span>
                             <div>
                               <div className="font-mono text-sm font-medium">{it.symbol}</div>
-                              <div className="max-w-[220px] truncate text-xs text-muted-foreground">{q.name}</div>
+                              <div className="max-w-[220px] truncate text-xs text-muted-foreground">{meta.name}</div>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell><Badge variant="outline">{q.sector}</Badge></TableCell>
-                        <TableCell className="numeric text-right">{formatCurrency(q.price)}</TableCell>
-                        <TableCell className={`numeric text-right ${pctClass(q.changePct)}`}>
-                          {formatPercent(q.changePct)}
-                        </TableCell>
-                        <TableCell className="numeric text-right text-muted-foreground">
-                          {Intl.NumberFormat("en-US", { notation: "compact" }).format(q.volume)}
+                        <TableCell><Badge variant="outline">{meta.sector}</Badge></TableCell>
+                        <TableCell className="numeric text-right">{price > 0 ? formatCurrency(price) : <span className="text-muted-foreground">…</span>}</TableCell>
+                        <TableCell className={`numeric text-right ${pctClass(changePct)}`}>{price > 0 ? formatPercent(changePct) : "—"}</TableCell>
+                        <TableCell className="numeric text-right text-xs text-muted-foreground">
+                          {q && q.low > 0 ? `${formatCurrency(q.low)} — ${formatCurrency(q.high)}` : "—"}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-bear" onClick={() => removeItem.mutate(it.id)}>

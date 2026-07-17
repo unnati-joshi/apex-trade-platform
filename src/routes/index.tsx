@@ -1,37 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
 import {
-  ArrowRight,
-  Activity,
-  Brain,
-  Layers,
-  LineChart as LineChartIcon,
-  ShieldCheck,
-  Zap,
-  Check,
-  TrendingUp,
-  TrendingDown,
+  ArrowRight, Activity, Brain, Layers, LineChart as LineChartIcon,
+  ShieldCheck, Zap, Check, TrendingUp, TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { listUniverse, candles, topMovers } from "@/lib/mock-market";
+import { UNIVERSE, useQuotes, useTopMovers, useCandles, symbolMeta } from "@/lib/market";
 import { formatCurrency, formatPercent, pctClass } from "@/lib/format";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
+import { MarketingNav, MarketingFooter } from "@/components/marketing/marketing-layout";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Apex Trade — Institutional Trading Platform" },
-      {
-        name: "description",
-        content:
-          "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
-      },
+      { name: "description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
       { property: "og:title", content: "Apex Trade — Institutional Trading Platform" },
-      {
-        property: "og:description",
-        content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
-      },
+      { property: "og:description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,53 +28,16 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
-      <NavBar />
+      <MarketingNav />
       <Hero />
       <LogoStrip />
       <StatsBand />
       <FeatureShowcase />
-      <DashboardPreview />
       <SecuritySection />
-      <Pricing />
       <FAQ />
       <CTASection />
-      <Footer />
+      <MarketingFooter />
     </div>
-  );
-}
-
-function NavBar() {
-  return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3.5">
-        <Link to="/" className="flex items-center gap-2 font-semibold">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-[0_0_16px_-2px_var(--color-primary)]">
-            <Activity className="h-4 w-4" strokeWidth={2.75} />
-          </span>
-          <span className="text-[15px] tracking-tight">Apex Trade</span>
-          <span className="ml-1 rounded border border-border/70 bg-surface-1 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-            v2
-          </span>
-        </Link>
-        <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
-          <a href="#platform" className="transition-colors hover:text-foreground">Platform</a>
-          <a href="#features" className="transition-colors hover:text-foreground">Features</a>
-          <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
-          <a href="#security" className="transition-colors hover:text-foreground">Security</a>
-          <a href="#faq" className="transition-colors hover:text-foreground">FAQ</a>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/auth">Sign in</Link>
-          </Button>
-          <Button asChild size="sm" className="shadow-[0_0_20px_-6px_var(--color-primary)]">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              Open account <ArrowRight className="ml-1 h-3.5 w-3.5" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </header>
   );
 }
 
@@ -98,10 +47,7 @@ function Hero() {
       <div className="absolute inset-0 bg-grid opacity-40" />
       <div
         className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(60% 40% at 50% 0%, oklch(0.72 0.16 158 / 0.18), transparent 70%), radial-gradient(50% 50% at 100% 100%, oklch(0.72 0.14 235 / 0.15), transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(60% 40% at 50% 0%, oklch(0.72 0.16 158 / 0.18), transparent 70%), radial-gradient(50% 50% at 100% 100%, oklch(0.72 0.14 235 / 0.15), transparent 70%)" }}
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
@@ -129,12 +75,10 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="h-11 px-5 shadow-[0_0_24px_-6px_var(--color-primary)]">
-              <Link to="/auth" search={{ mode: "signup" }}>
-                Open a paper account <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+              <Link to="/auth">Open a paper account <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="h-11 px-5">
-              <a href="#platform">Explore the platform</a>
+              <Link to="/platform">Explore the platform</Link>
             </Button>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
@@ -153,24 +97,21 @@ function Hero() {
 }
 
 function HeroTerminal() {
-  const gainers = useMemo(() => topMovers().gainers.slice(0, 4), []);
+  const { gainers } = useTopMovers();
+  const { data: candlesData } = useCandles("SPY", 60);
   const chart = useMemo(
-    () =>
-      candles("SPY", 60).map((c, i) => ({
-        i,
-        v: c.c,
-      })),
-    [],
+    () => (candlesData?.candles ?? []).map((c, i) => ({ i, v: c.c })),
+    [candlesData],
   );
+  const { data: spyQuote } = useQuotes(["SPY"]);
+  const spy = spyQuote?.[0];
+  const top4 = gainers.slice(0, 4);
 
   return (
     <div className="relative">
       <div
         className="pointer-events-none absolute -inset-6 rounded-3xl blur-2xl"
-        style={{
-          background:
-            "radial-gradient(60% 60% at 50% 50%, oklch(0.72 0.16 158 / 0.20), transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(60% 60% at 50% 50%, oklch(0.72 0.16 158 / 0.20), transparent 70%)" }}
       />
       <div className="panel relative overflow-hidden rounded-2xl">
         <div className="flex items-center justify-between border-b border-border/70 bg-surface-2/60 px-4 py-2.5">
@@ -188,7 +129,6 @@ function HeroTerminal() {
         </div>
 
         <div className="grid gap-4 p-5 sm:grid-cols-[1.35fr_1fr]">
-          {/* Chart card */}
           <div className="panel-inset overflow-hidden p-4">
             <div className="flex items-baseline justify-between">
               <div>
@@ -196,57 +136,52 @@ function HeroTerminal() {
                   SPY · S&amp;P 500 ETF
                 </div>
                 <div className="mt-1 numeric text-2xl font-semibold">
-                  {formatCurrency(chart.at(-1)?.v ?? 520)}
+                  {spy?.price ? formatCurrency(spy.price) : "—"}
                 </div>
               </div>
-              <div className="inline-flex items-center gap-1 rounded-md bg-bull-soft px-2 py-1 text-xs font-semibold text-bull">
-                <TrendingUp className="h-3 w-3" /> +1.24%
-              </div>
+              {spy && spy.price > 0 && (
+                <div className={cn("inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold", spy.changePct >= 0 ? "bg-bull-soft text-bull" : "bg-bear-soft text-bear")}>
+                  {spy.changePct >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />} {formatPercent(spy.changePct)}
+                </div>
+              )}
             </div>
             <div className="mt-3 h-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chart}>
-                  <defs>
-                    <linearGradient id="heroG" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.55} />
-                      <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="v"
-                    stroke="var(--color-primary)"
-                    strokeWidth={1.75}
-                    fill="url(#heroG)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {chart.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chart}>
+                    <defs>
+                      <linearGradient id="heroG" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={1.75} fill="url(#heroG)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Loading market data…</div>
+              )}
             </div>
           </div>
 
-          {/* Movers */}
           <div className="panel-inset p-3">
             <div className="mb-2 flex items-center justify-between px-1">
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                Top gainers
-              </span>
+              <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Top gainers</span>
               <span className="text-[10px] text-muted-foreground">Live</span>
             </div>
             <div className="space-y-1">
-              {gainers.map((g) => (
-                <div
-                  key={g.symbol}
-                  className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-surface-3/60"
-                >
+              {top4.length === 0 && (
+                <div className="p-4 text-center text-xs text-muted-foreground">Loading…</div>
+              )}
+              {top4.map((g) => (
+                <div key={g.symbol} className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-surface-3/60">
                   <div className="min-w-0">
                     <div className="font-mono text-[13px] font-semibold">{g.symbol}</div>
                     <div className="truncate text-[11px] text-muted-foreground">{g.name}</div>
                   </div>
                   <div className="text-right">
                     <div className="numeric text-[13px]">{formatCurrency(g.price)}</div>
-                    <div className={cn("numeric text-[11px]", pctClass(g.changePct))}>
-                      {formatPercent(g.changePct)}
-                    </div>
+                    <div className={cn("numeric text-[11px]", pctClass(g.changePct))}>{formatPercent(g.changePct)}</div>
                   </div>
                 </div>
               ))}
@@ -254,13 +189,12 @@ function HeroTerminal() {
           </div>
         </div>
 
-        {/* Order ticket preview */}
         <div className="border-t border-border/70 bg-surface-2/40 p-4">
           <div className="grid grid-cols-4 gap-3 text-[11px]">
-            <StatMini label="Equity" value="$142,318" tone="up" />
-            <StatMini label="Day P&L" value="+$1,842" tone="up" />
-            <StatMini label="Buying pwr" value="$78,410" />
-            <StatMini label="Positions" value="12" />
+            <StatMini label="Markets" value="Live" tone="up" />
+            <StatMini label="Latency" value="<50ms" />
+            <StatMini label="Coverage" value="24 syms" />
+            <StatMini label="Uptime" value="99.99%" tone="up" />
           </div>
         </div>
       </div>
@@ -272,27 +206,22 @@ function StatMini({ label, value, tone }: { label: string; value: string; tone?:
   return (
     <div className="rounded-md border border-border/60 bg-surface-1 px-2.5 py-2">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div
-        className={cn(
-          "numeric mt-0.5 text-sm font-semibold",
-          tone === "up" && "text-bull",
-          tone === "down" && "text-bear",
-        )}
-      >
-        {value}
-      </div>
+      <div className={cn("numeric mt-0.5 text-sm font-semibold", tone === "up" && "text-bull", tone === "down" && "text-bear")}>{value}</div>
     </div>
   );
 }
 
 function TickerRibbon() {
-  const symbols = useMemo(() => listUniverse().slice(0, 18), []);
-  const seq = [...symbols, ...symbols];
+  const symbols = UNIVERSE.slice(0, 18).map((u) => u.symbol);
+  const { data: quotes = [] } = useQuotes(symbols);
+  const enriched = quotes.filter((q) => !q.error && q.price > 0).map((q) => ({ ...q, ...symbolMeta(q.symbol) }));
+  const seq = enriched.length > 0 ? [...enriched, ...enriched] : [];
   return (
     <div className="relative border-t border-border/70 bg-surface-1/60 backdrop-blur">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent" />
-      <div className="ticker-tape flex gap-10 py-2.5 pl-4 whitespace-nowrap">
+      <div className={cn("flex gap-10 py-2.5 pl-4 whitespace-nowrap", seq.length > 0 && "ticker-tape")}>
+        {seq.length === 0 && <div className="text-xs text-muted-foreground">Loading live tape…</div>}
         {seq.map((q, i) => (
           <div key={`${q.symbol}-${i}`} className="flex items-center gap-2 text-xs">
             <span className="font-mono font-semibold tracking-tight">{q.symbol}</span>
@@ -317,12 +246,7 @@ function LogoStrip() {
         </div>
         <div className="mt-6 grid grid-cols-2 items-center gap-6 opacity-60 sm:grid-cols-3 md:grid-cols-6">
           {["MERIDIAN", "AXIS CAPITAL", "NORTHWIND", "PARALLEL", "SIGMA", "HELIX"].map((n) => (
-            <div
-              key={n}
-              className="text-center font-mono text-sm tracking-[0.3em] text-muted-foreground/80"
-            >
-              {n}
-            </div>
+            <div key={n} className="text-center font-mono text-sm tracking-[0.3em] text-muted-foreground/80">{n}</div>
           ))}
         </div>
       </div>
@@ -332,19 +256,17 @@ function LogoStrip() {
 
 function StatsBand() {
   const stats = [
-    { v: "12.4M", l: "Paper trades executed" },
-    { v: "18k+", l: "Symbols across markets" },
-    { v: "34ms", l: "Median order latency" },
-    { v: "99.99%", l: "API uptime SLA" },
+    { v: "Live", l: "Real-time market data" },
+    { v: "24+", l: "Symbols across markets" },
+    { v: "<50ms", l: "Median UI latency" },
+    { v: "99.99%", l: "Target uptime SLA" },
   ];
   return (
-    <section id="platform" className="border-b border-border/60 bg-surface-1/40">
+    <section className="border-b border-border/60 bg-surface-1/40">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 py-14 md:grid-cols-4">
         {stats.map((s) => (
           <div key={s.l}>
-            <div className="numeric text-3xl font-semibold tracking-tight md:text-4xl">
-              {s.v}
-            </div>
+            <div className="numeric text-3xl font-semibold tracking-tight md:text-4xl">{s.v}</div>
             <div className="mt-1 text-xs text-muted-foreground">{s.l}</div>
           </div>
         ))}
@@ -367,7 +289,7 @@ function FeatureShowcase() {
       </div>
 
       <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Feature icon={<LineChartIcon className="h-5 w-5" />} title="Real-time markets" desc="Live quotes, heatmaps, and multi-asset charts across equities, ETFs, and crypto." />
+        <Feature icon={<LineChartIcon className="h-5 w-5" />} title="Real-time markets" desc="Live quotes and OHLC candles from Finnhub across equities, ETFs, and crypto." />
         <Feature icon={<Layers className="h-5 w-5" />} title="Dockable workspace" desc="Drag, resize, and persist widget layouts — one per strategy or account." />
         <Feature icon={<Brain className="h-5 w-5" />} title="AI co-pilot" desc="Portfolio-aware assistant that explains movement, reviews trades, and drafts strategy notes." />
         <Feature icon={<Zap className="h-5 w-5" />} title="Margin & shorts" desc="Cash and margin accounts with proper buying-power checks, short opens, and buy-to-cover." />
@@ -383,9 +305,7 @@ function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; 
     <div className="group relative overflow-hidden rounded-xl border border-border bg-surface-1/70 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-surface-1">
       <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl transition-opacity duration-300 group-hover:bg-primary/10" />
       <div className="relative">
-        <div className="mb-4 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">
-          {icon}
-        </div>
+        <div className="mb-4 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{icon}</div>
         <h3 className="text-[15px] font-semibold tracking-tight">{title}</h3>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{desc}</p>
       </div>
@@ -393,203 +313,43 @@ function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; 
   );
 }
 
-function DashboardPreview() {
-  const universe = useMemo(() => listUniverse().slice(0, 24), []);
-  return (
-    <section className="border-y border-border/60 bg-surface-1/30">
-      <div className="mx-auto max-w-7xl px-6 py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="text-xs uppercase tracking-[0.2em] text-primary">Terminal</div>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            Bloomberg-grade density, without the friction
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Every panel is a first-class primitive — no dead widgets, no fake data.
-          </p>
-        </div>
-
-        {/* Market heatmap */}
-        <div className="panel mt-12 overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <div className="text-sm font-medium">Market heatmap</div>
-            <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-              % change · 24h
-            </span>
-          </div>
-          <div className="grid grid-cols-4 gap-px bg-border sm:grid-cols-6 lg:grid-cols-8">
-            {universe.map((q) => {
-              const bg = q.changePct >= 0
-                ? `oklch(0.30 0.10 155 / ${Math.min(0.85, 0.15 + Math.abs(q.changePct) / 8)})`
-                : `oklch(0.30 0.15 22 / ${Math.min(0.85, 0.15 + Math.abs(q.changePct) / 8)})`;
-              return (
-                <div
-                  key={q.symbol}
-                  className="flex flex-col justify-between p-3 transition-transform hover:z-10 hover:scale-[1.02]"
-                  style={{ backgroundColor: bg }}
-                >
-                  <div className="font-mono text-[12px] font-semibold">{q.symbol}</div>
-                  <div className={cn("numeric mt-1 text-[13px] font-semibold", pctClass(q.changePct))}>
-                    {formatPercent(q.changePct)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function SecuritySection() {
-  const items = [
-    "Row-level security on every table",
-    "SHA-256 hashed broker API keys",
-    "Google OAuth + email/password",
-    "Full session & login audit trail",
-    "RBAC across workspaces",
-    "Server-side order validation",
-  ];
   return (
-    <section id="security" className="mx-auto max-w-7xl px-6 py-24">
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+    <section id="security" className="border-y border-border/60 bg-surface-1/30">
+      <div className="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center">
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-primary">Security</div>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            Trust encoded into every layer
+            Institutional-grade controls, by default
           </h2>
-          <p className="mt-3 text-muted-foreground">
-            Apex Trade is engineered like the systems it competes with. Data is
-            partitioned per user, orders are validated on the server, and
-            credentials never live in the client.
+          <p className="mt-3 max-w-lg text-muted-foreground">
+            Row-level security, hashed credentials, encrypted transport, and audit logging — the same controls you'd expect from a bank, applied to every account.
           </p>
-          <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {items.map((i) => (
-              <li key={i} className="flex items-center gap-2 text-sm">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/15 text-primary">
-                  <Check className="h-3 w-3" />
-                </span>
-                {i}
+          <ul className="mt-6 space-y-3 text-sm">
+            {[
+              "TLS 1.3 in transit, encrypted at rest",
+              "SHA-256 hashed API credentials",
+              "Row-level security on every table",
+              "Full audit trail for privileged actions",
+            ].map((t) => (
+              <li key={t} className="flex items-start gap-2 text-muted-foreground">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-bull" /> {t}
               </li>
             ))}
           </ul>
+          <Button asChild variant="outline" className="mt-8">
+            <Link to="/security">Read security overview <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
         </div>
-        <div className="panel overflow-hidden p-0">
-          <div className="border-b border-border bg-surface-2/60 px-4 py-2.5 text-[11px] uppercase tracking-widest text-muted-foreground">
-            policy · orders · production
-          </div>
-          <pre className="overflow-x-auto p-5 text-[12.5px] leading-relaxed">
-{`create policy "own_orders" on public.orders
-  for all using ( auth.uid() = user_id )
-  with check ( auth.uid() = user_id );
+        <div className="panel p-6">
+          <pre className="overflow-x-auto text-[13px] leading-relaxed"><code className="font-mono text-muted-foreground">{`-- Every table has RLS
+create policy "own portfolios only"
+on portfolios for all
+using (auth.uid() = user_id);
 
--- server-side atomic execution
-select public.place_paper_order(
-  _portfolio_id := :pid,
-  _symbol       := 'AAPL',
-  _side         := 'sell',
-  _quantity     := 25,
-  _mark_price   := 187.42
-);
--- ERROR: cash accounts cannot short-sell.`}
-          </pre>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Pricing() {
-  const tiers = [
-    {
-      name: "Starter",
-      price: "Free",
-      sub: "For individuals learning the ropes.",
-      features: ["Paper account", "Watchlists & alerts", "AI co-pilot (limited)", "1 workspace"],
-      cta: "Start free",
-      highlight: false,
-    },
-    {
-      name: "Professional",
-      price: "$29",
-      sub: "For active traders scaling their book.",
-      features: [
-        "Cash + margin accounts",
-        "Shorts & buy-to-cover",
-        "Unlimited AI co-pilot",
-        "Real-time L1 quotes",
-        "Broker connections",
-      ],
-      cta: "Upgrade",
-      highlight: true,
-    },
-    {
-      name: "Institutional",
-      price: "Custom",
-      sub: "For desks and multi-user firms.",
-      features: [
-        "SSO + SAML",
-        "Team workspaces & RBAC",
-        "L2 depth-of-book",
-        "SLA-backed uptime",
-        "Dedicated support",
-      ],
-      cta: "Contact sales",
-      highlight: false,
-    },
-  ];
-  return (
-    <section id="pricing" className="border-y border-border/60 bg-surface-1/30">
-      <div className="mx-auto max-w-7xl px-6 py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="text-xs uppercase tracking-[0.2em] text-primary">Pricing</div>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            Simple pricing that scales with you
-          </h2>
-        </div>
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {tiers.map((t) => (
-            <div
-              key={t.name}
-              className={cn(
-                "relative rounded-xl border p-6",
-                t.highlight
-                  ? "border-primary/50 bg-gradient-to-b from-primary/[0.08] to-transparent shadow-[0_0_40px_-15px_var(--color-primary)]"
-                  : "border-border bg-surface-1/70",
-              )}
-            >
-              {t.highlight && (
-                <div className="absolute -top-2.5 left-6 rounded-full border border-primary/40 bg-primary/20 px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary">
-                  Most popular
-                </div>
-              )}
-              <div className="text-sm font-semibold">{t.name}</div>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="numeric text-4xl font-semibold tracking-tight">{t.price}</span>
-                {t.price !== "Free" && t.price !== "Custom" && (
-                  <span className="text-xs text-muted-foreground">/ mo</span>
-                )}
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">{t.sub}</p>
-              <ul className="mt-5 space-y-2 text-sm">
-                {t.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <Check className="h-3.5 w-3.5 text-bull" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                asChild
-                className="mt-6 w-full"
-                variant={t.highlight ? "default" : "outline"}
-              >
-                <Link to="/auth" search={{ mode: "signup" }}>
-                  {t.cta}
-                </Link>
-              </Button>
-            </div>
-          ))}
+-- API keys stored as SHA-256
+insert into api_keys (user_id, key_hash)
+values (uid, encode(digest(raw, 'sha256'), 'hex'));`}</code></pre>
         </div>
       </div>
     </section>
@@ -597,54 +357,27 @@ function Pricing() {
 }
 
 function FAQ() {
-  const qs = [
-    {
-      q: "Is Apex Trade a real broker?",
-      a: "Apex Trade is a paper-trading terminal today. The architecture supports broker connections (Alpaca, IBKR, Zerodha, Binance, Coinbase) via encrypted, hashed credentials — enable them when you're ready to route real orders.",
-    },
-    {
-      q: "Do I need a credit card to start?",
-      a: "No. Every account starts with a $100k paper cash balance. Upgrade only when you outgrow the free tier.",
-    },
-    {
-      q: "How do margin and short-selling work?",
-      a: "Switch your account to margin in Settings. Sells that exceed your long position open a short (up to your buying power). Buys that exceed an open short cover first, then open a long. Cash accounts are long-only and reject invalid sells server-side.",
-    },
-    {
-      q: "Where does market data come from?",
-      a: "The terminal ships with a deterministic mock feed for demos and paper trading. Enable live L1/L2 data by adding a provider key (Finnhub, Polygon, Twelve Data) in Settings.",
-    },
-    {
-      q: "Is my data secure?",
-      a: "Yes. Every table has row-level security scoped to auth.uid(). Broker keys are hashed with SHA-256 before storage. Nothing is trusted from the client.",
-    },
+  const faqs = [
+    { q: "Where does market data come from?", a: "Live quotes, candles, and news are served through the Finnhub API. Historical data is available for research and charting." },
+    { q: "Is my trading real?", a: "The current product is paper trading only. All orders are simulated with server-side validation; no real capital is at risk." },
+    { q: "How is my data protected?", a: "TLS in transit, encryption at rest, row-level security on every table, and hashed credentials. See our Security page for details." },
+    { q: "Can I run Apex Trade locally?", a: "Yes — see the Docs. You'll need a Finnhub key and Supabase credentials in your .env file, then bun install and bun dev." },
   ];
-  const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
-      <div className="text-center">
+    <section id="faq" className="mx-auto max-w-4xl px-6 py-24">
+      <div className="mx-auto max-w-2xl text-center">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">FAQ</div>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-          Frequently asked questions
-        </h2>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight">Frequently asked</h2>
       </div>
       <div className="mt-10 divide-y divide-border rounded-xl border border-border bg-surface-1/60">
-        {qs.map((item, i) => (
-          <button
-            key={item.q}
-            onClick={() => setOpen(open === i ? null : i)}
-            className="block w-full px-5 py-4 text-left transition-colors hover:bg-surface-2/50"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-[15px] font-medium">{item.q}</span>
-              <span className={cn("text-lg text-muted-foreground transition-transform", open === i && "rotate-45")}>
-                +
-              </span>
-            </div>
-            {open === i && (
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
-            )}
-          </button>
+        {faqs.map((f) => (
+          <details key={f.q} className="group px-6 py-5">
+            <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold marker:content-none">
+              {f.q}
+              <span className="text-muted-foreground transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+          </details>
         ))}
       </div>
     </section>
@@ -653,82 +386,23 @@ function FAQ() {
 
 function CTASection() {
   return (
-    <section className="relative overflow-hidden border-y border-border">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(60% 60% at 50% 50%, oklch(0.72 0.16 158 / 0.16), transparent 70%)",
-        }}
-      />
-      <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
-        <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-          Ready in seconds. Deployable at scale.
+    <section className="border-t border-border/60">
+      <div className="mx-auto max-w-4xl px-6 py-24 text-center">
+        <h2 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+          Start trading like a professional today
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Sign in with email or Google. Your workspace, watchlists, and paper
-          portfolio are provisioned instantly.
+          Open a free paper account. No credit card. Real markets, real controls.
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex justify-center gap-3">
           <Button asChild size="lg" className="h-11 px-6 shadow-[0_0_24px_-6px_var(--color-primary)]">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              Open your account <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            <Link to="/auth">Open your workspace <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="h-11 px-6">
-            <Link to="/auth">Sign in</Link>
+          <Button asChild variant="outline" size="lg" className="h-11 px-6">
+            <Link to="/docs">Read the docs</Link>
           </Button>
         </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  const cols: Record<string, string[]> = {
-    Product: ["Platform", "Features", "Pricing", "Security"],
-    Company: ["About", "Careers", "Press", "Contact"],
-    Resources: ["Docs", "API", "Changelog", "Status"],
-    Legal: ["Terms", "Privacy", "Compliance", "Cookies"],
-  };
-  return (
-    <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-14">
-        <div className="grid gap-10 md:grid-cols-[1.5fr_repeat(4,1fr)]">
-          <div>
-            <Link to="/" className="flex items-center gap-2 font-semibold">
-              <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
-                <Activity className="h-4 w-4" strokeWidth={2.75} />
-              </span>
-              Apex Trade
-            </Link>
-            <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-              The institutional trading terminal for professionals, prop shops,
-              and independent traders.
-            </p>
-          </div>
-          {Object.entries(cols).map(([h, items]) => (
-            <div key={h}>
-              <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {h}
-              </div>
-              <ul className="mt-4 space-y-2 text-sm">
-                {items.map((l) => (
-                  <li key={l}>
-                    <a className="text-muted-foreground transition-colors hover:text-foreground" href="#">
-                      {l}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Apex Trade Systems, Inc.</span>
-          <span>All market data shown is for demonstration only.</span>
-        </div>
-      </div>
-    </footer>
   );
 }

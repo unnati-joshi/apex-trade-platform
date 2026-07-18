@@ -6,7 +6,11 @@ export const Route = createFileRoute("/compliance")({
     meta: [
       { title: "Compliance — Apex Trade" },
       { name: "description", content: "Regulatory and compliance posture for Apex Trade." },
+      { property: "og:title", content: "Compliance — Apex Trade" },
+      { property: "og:description", content: "Regulatory and compliance posture for Apex Trade." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/compliance" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/compliance" }],
   }),
   component: CompliancePage,
 });

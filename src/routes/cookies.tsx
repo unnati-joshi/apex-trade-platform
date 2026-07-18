@@ -6,7 +6,11 @@ export const Route = createFileRoute("/cookies")({
     meta: [
       { title: "Cookie Policy — Apex Trade" },
       { name: "description", content: "How Apex Trade uses cookies and similar technologies." },
+      { property: "og:title", content: "Cookie Policy — Apex Trade" },
+      { property: "og:description", content: "How Apex Trade uses cookies and similar technologies." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/cookies" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/cookies" }],
   }),
   component: CookiesPage,
 });

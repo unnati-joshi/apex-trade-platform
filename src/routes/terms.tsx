@@ -6,7 +6,11 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title: "Terms of Service — Apex Trade" },
       { name: "description", content: "The terms of service governing use of Apex Trade." },
+      { property: "og:title", content: "Terms of Service — Apex Trade" },
+      { property: "og:description", content: "The terms of service governing use of Apex Trade." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/terms" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/terms" }],
   }),
   component: TermsPage,
 });

@@ -6,7 +6,11 @@ export const Route = createFileRoute("/privacy")({
     meta: [
       { title: "Privacy Policy — Apex Trade" },
       { name: "description", content: "How Apex Trade collects, uses, and protects your personal information." },
+      { property: "og:title", content: "Privacy Policy — Apex Trade" },
+      { property: "og:description", content: "How Apex Trade collects, uses, and protects your personal information." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/privacy" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/privacy" }],
   }),
   component: PrivacyPage,
 });

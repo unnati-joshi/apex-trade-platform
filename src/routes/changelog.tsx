@@ -7,7 +7,11 @@ export const Route = createFileRoute("/changelog")({
     meta: [
       { title: "Changelog — Apex Trade" },
       { name: "description", content: "Product updates, new features, and improvements shipped in Apex Trade." },
+      { property: "og:title", content: "Changelog — Apex Trade" },
+      { property: "og:description", content: "Product updates, new features, and improvements shipped in Apex Trade." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/changelog" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/changelog" }],
   }),
   component: ChangelogPage,
 });

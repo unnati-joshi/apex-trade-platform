@@ -7,7 +7,11 @@ export const Route = createFileRoute("/api")({
     meta: [
       { title: "API Reference — Apex Trade" },
       { name: "description", content: "Every server function the Apex Trade platform exposes, with request and response shapes." },
+      { property: "og:title", content: "API Reference — Apex Trade" },
+      { property: "og:description", content: "Every server function the Apex Trade platform exposes, with request and response shapes." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/api" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/api" }],
   }),
   component: ApiPage,
 });

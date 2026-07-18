@@ -7,7 +7,11 @@ export const Route = createFileRoute("/status")({
     meta: [
       { title: "Status — Apex Trade" },
       { name: "description", content: "Real-time operational status of Apex Trade services." },
+      { property: "og:title", content: "Status — Apex Trade" },
+      { property: "og:description", content: "Real-time operational status of Apex Trade services." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/status" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/status" }],
   }),
   component: StatusPage,
 });

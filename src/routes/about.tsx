@@ -9,7 +9,9 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "The team building the institutional trading terminal for the next generation of professionals." },
       { property: "og:title", content: "About — Apex Trade" },
       { property: "og:description", content: "The team building the institutional trading terminal for the next generation of professionals." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/about" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/about" }],
   }),
   component: AboutPage,
 });

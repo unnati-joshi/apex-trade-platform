@@ -36,7 +36,7 @@ function FeaturesPage() {
           {FEATURES.map((f) => (
             <div key={f.title} className="group rounded-xl border border-border bg-surface-1/70 p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40">
               <div className="mb-3 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{f.icon}</div>
-              <h3 className="text-[15px] font-semibold tracking-tight">{f.title}</h3>
+              <h2 className="text-[15px] font-semibold tracking-tight">{f.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
             </div>
           ))}

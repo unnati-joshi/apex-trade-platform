@@ -34,7 +34,7 @@ function SecurityPage() {
           {CONTROLS.map((c) => (
             <div key={c.title} className="rounded-xl border border-border bg-surface-1/70 p-6">
               <div className="mb-3 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{c.icon}</div>
-              <h3 className="text-[15px] font-semibold tracking-tight">{c.title}</h3>
+              <h2 className="text-[15px] font-semibold tracking-tight">{c.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
             </div>
           ))}

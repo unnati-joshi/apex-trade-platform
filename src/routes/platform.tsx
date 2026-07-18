@@ -31,7 +31,7 @@ function PlatformPage() {
             <Link key={m.to} to={m.to} className="group rounded-xl border border-border bg-surface-1/70 p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40">
               <div className="mb-3 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{m.icon}</div>
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="text-lg font-semibold tracking-tight">{m.title}</h3>
+                <h2 className="text-lg font-semibold tracking-tight">{m.title}</h2>
                 <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </div>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{m.desc}</p>

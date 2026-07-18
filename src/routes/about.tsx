@@ -54,7 +54,7 @@ function Card({ icon, title, children }: { icon: React.ReactNode; title: string;
   return (
     <div className="rounded-xl border border-border bg-surface-1/60 p-6">
       <div className="mb-3 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{icon}</div>
-      <h3 className="text-[15px] font-semibold tracking-tight">{title}</h3>
+      <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{children}</p>
     </div>
   );

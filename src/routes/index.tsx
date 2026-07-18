@@ -380,12 +380,6 @@ values (uid, encode(digest(raw, 'sha256'), 'hex'));`}</code></pre>
 }
 
 function FAQ() {
-  const faqs = [
-    { q: "Where does market data come from?", a: "Live quotes, candles, and news are served through the Finnhub API. Historical data is available for research and charting." },
-    { q: "Is my trading real?", a: "The current product is paper trading only. All orders are simulated with server-side validation; no real capital is at risk." },
-    { q: "How is my data protected?", a: "TLS in transit, encryption at rest, row-level security on every table, and hashed credentials. See our Security page for details." },
-    { q: "Can I run Apex Trade locally?", a: "Yes — see the Docs. You'll need a Finnhub key and Supabase credentials in your .env file, then bun install and bun dev." },
-  ];
   return (
     <section id="faq" className="mx-auto max-w-4xl px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
@@ -393,7 +387,7 @@ function FAQ() {
         <h2 className="mt-3 text-3xl font-semibold tracking-tight">Frequently asked</h2>
       </div>
       <div className="mt-10 divide-y divide-border rounded-xl border border-border bg-surface-1/60">
-        {faqs.map((f) => (
+        {FAQS.map((f) => (
           <details key={f.q} className="group px-6 py-5">
             <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold marker:content-none">
               {f.q}

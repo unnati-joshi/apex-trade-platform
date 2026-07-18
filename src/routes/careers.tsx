@@ -6,7 +6,11 @@ export const Route = createFileRoute("/careers")({
     meta: [
       { title: "Careers — Apex Trade" },
       { name: "description", content: "Join the team building institutional-grade trading infrastructure." },
+      { property: "og:title", content: "Careers — Apex Trade" },
+      { property: "og:description", content: "Join the team building institutional-grade trading infrastructure." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/careers" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/careers" }],
   }),
   component: CareersPage,
 });

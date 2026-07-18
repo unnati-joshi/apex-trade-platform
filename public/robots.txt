@@ -7,3 +7,5 @@ Disallow: /orders
 Disallow: /ai
 Disallow: /settings
 Disallow: /auth
+
+Sitemap: https://apex-trading-app.lovable.app/sitemap.xml

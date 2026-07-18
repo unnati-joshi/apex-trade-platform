@@ -7,7 +7,11 @@ export const Route = createFileRoute("/press")({
     meta: [
       { title: "Press — Apex Trade" },
       { name: "description", content: "Press kit, brand assets, and media contact for Apex Trade." },
+      { property: "og:title", content: "Press — Apex Trade" },
+      { property: "og:description", content: "Press kit, brand assets, and media contact for Apex Trade." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/press" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/press" }],
   }),
   component: PressPage,
 });

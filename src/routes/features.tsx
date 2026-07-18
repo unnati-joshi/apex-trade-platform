@@ -7,7 +7,11 @@ export const Route = createFileRoute("/features")({
     meta: [
       { title: "Features — Apex Trade" },
       { name: "description", content: "Every feature Apex Trade ships — real-time markets, margin, shorts, AI co-pilot, workspaces, and enterprise security." },
+      { property: "og:title", content: "Features — Apex Trade" },
+      { property: "og:description", content: "Every feature Apex Trade ships — real-time markets, margin, shorts, AI co-pilot, workspaces, and enterprise security." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/features" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/features" }],
   }),
   component: FeaturesPage,
 });
@@ -36,7 +40,7 @@ function FeaturesPage() {
           {FEATURES.map((f) => (
             <div key={f.title} className="group rounded-xl border border-border bg-surface-1/70 p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40">
               <div className="mb-3 inline-grid h-9 w-9 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">{f.icon}</div>
-              <h3 className="text-[15px] font-semibold tracking-tight">{f.title}</h3>
+              <h2 className="text-[15px] font-semibold tracking-tight">{f.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
             </div>
           ))}

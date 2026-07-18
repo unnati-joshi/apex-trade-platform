@@ -7,7 +7,11 @@ export const Route = createFileRoute("/docs")({
     meta: [
       { title: "Docs — Apex Trade" },
       { name: "description", content: "Get started with Apex Trade — installation, authentication, market data, orders, and more." },
+      { property: "og:title", content: "Docs — Apex Trade" },
+      { property: "og:description", content: "Get started with Apex Trade — installation, authentication, market data, orders, and more." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/docs" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/docs" }],
   }),
   component: DocsPage,
 });

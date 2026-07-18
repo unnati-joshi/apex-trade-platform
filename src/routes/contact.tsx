@@ -14,7 +14,11 @@ export const Route = createFileRoute("/contact")({
     meta: [
       { title: "Contact — Apex Trade" },
       { name: "description", content: "Get in touch with the Apex Trade team — sales, support, partnerships, or press." },
+      { property: "og:title", content: "Contact — Apex Trade" },
+      { property: "og:description", content: "Get in touch with the Apex Trade team — sales, support, partnerships, or press." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/contact" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/contact" }],
   }),
   component: ContactPage,
 });

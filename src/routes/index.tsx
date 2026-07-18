@@ -11,6 +11,13 @@ import { cn } from "@/lib/utils";
 import { MarketingNav, MarketingFooter } from "@/components/marketing/marketing-layout";
 import { useMemo } from "react";
 
+const FAQS = [
+  { q: "Where does market data come from?", a: "Live quotes, candles, and news are served through the Finnhub API. Historical data is available for research and charting." },
+  { q: "Is my trading real?", a: "The current product is paper trading only. All orders are simulated with server-side validation; no real capital is at risk." },
+  { q: "How is my data protected?", a: "TLS in transit, encryption at rest, row-level security on every table, and hashed credentials. See our Security page for details." },
+  { q: "Can I run Apex Trade locally?", a: "Yes — see the Docs. You'll need a Finnhub key and Supabase credentials in your .env file, then bun install and bun dev." },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -18,8 +25,24 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
       { property: "og:title", content: "Apex Trade — Institutional Trading Platform" },
       { property: "og:description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
+    ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
     ],
   }),
   component: Landing,

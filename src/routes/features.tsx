@@ -7,7 +7,11 @@ export const Route = createFileRoute("/features")({
     meta: [
       { title: "Features — Apex Trade" },
       { name: "description", content: "Every feature Apex Trade ships — real-time markets, margin, shorts, AI co-pilot, workspaces, and enterprise security." },
+      { property: "og:title", content: "Features — Apex Trade" },
+      { property: "og:description", content: "Every feature Apex Trade ships — real-time markets, margin, shorts, AI co-pilot, workspaces, and enterprise security." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/features" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/features" }],
   }),
   component: FeaturesPage,
 });

@@ -8,7 +8,11 @@ export const Route = createFileRoute("/platform")({
     meta: [
       { title: "Platform — Apex Trade" },
       { name: "description", content: "The Apex Trade terminal: dashboard, watchlists, portfolio, order management, and AI co-pilot in one workspace." },
+      { property: "og:title", content: "Platform — Apex Trade" },
+      { property: "og:description", content: "The Apex Trade terminal: dashboard, watchlists, portfolio, order management, and AI co-pilot in one workspace." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/platform" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/platform" }],
   }),
   component: PlatformPage,
 });

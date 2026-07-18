@@ -7,7 +7,11 @@ export const Route = createFileRoute("/security")({
     meta: [
       { title: "Security — Apex Trade" },
       { name: "description", content: "How Apex Trade protects your account, credentials, market data, and trading activity." },
+      { property: "og:title", content: "Security — Apex Trade" },
+      { property: "og:description", content: "How Apex Trade protects your account, credentials, market data, and trading activity." },
+      { property: "og:url", content: "https://apex-trading-app.lovable.app/security" },
     ],
+    links: [{ rel: "canonical", href: "https://apex-trading-app.lovable.app/security" }],
   }),
   component: SecurityPage,
 });

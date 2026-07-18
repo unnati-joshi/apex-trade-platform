@@ -78,25 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Apex Trade — Institutional Trading Platform" },
-      {
-        name: "description",
-        content:
-          "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
-      },
       { name: "theme-color", content: "#0b1220" },
-      { property: "og:title", content: "Apex Trade — Institutional Trading Platform" },
-      {
-        property: "og:description",
-        content:
-          "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security.",
-      },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Apex Trade" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Apex Trade — Institutional Trading Platform" },
-      { name: "twitter:description", content: "The institutional trading terminal for professionals. Real-time markets, multi-asset portfolios, margin & shorts, AI intelligence, and enterprise security." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4408224a-2da0-4b9a-a020-43d06476307d/id-preview-8e5b7914--05c900f3-ea56-40b7-88f5-b3370ae9a911.lovable.app-1784091101242.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -106,7 +91,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Apex Trade",
+              url: "https://apex-trading-app.lovable.app",
+              logo: "https://apex-trading-app.lovable.app/favicon.ico",
+            },
+            {
+              "@type": "WebSite",
+              name: "Apex Trade",
+              url: "https://apex-trading-app.lovable.app",
+            },
+          ],
+        }),
+      },
+    ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

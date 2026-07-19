@@ -34,6 +34,7 @@ import { Route as AuthenticatedPortfolioRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
+import { Route as AuthenticatedMarketsSymbolRouteImport } from './routes/_authenticated/markets.$symbol'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -159,6 +160,12 @@ const AuthenticatedAiRoute = AuthenticatedAiRouteImport.update({
   path: '/ai',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMarketsSymbolRoute =
+  AuthenticatedMarketsSymbolRouteImport.update({
+    id: '/markets/$symbol',
+    path: '/markets/$symbol',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/markets/$symbol': typeof AuthenticatedMarketsSymbolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -211,6 +219,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/markets/$symbol': typeof AuthenticatedMarketsSymbolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/_authenticated/portfolio': typeof AuthenticatedPortfolioRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
+  '/_authenticated/markets/$symbol': typeof AuthenticatedMarketsSymbolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/settings'
     | '/watchlist'
+    | '/markets/$symbol'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/settings'
     | '/watchlist'
+    | '/markets/$symbol'
   id:
     | '__root__'
     | '/'
@@ -320,6 +332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portfolio'
     | '/_authenticated/settings'
     | '/_authenticated/watchlist'
+    | '/_authenticated/markets/$symbol'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -521,6 +534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/markets/$symbol': {
+      id: '/_authenticated/markets/$symbol'
+      path: '/markets/$symbol'
+      fullPath: '/markets/$symbol'
+      preLoaderRoute: typeof AuthenticatedMarketsSymbolRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -531,6 +551,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPortfolioRoute: typeof AuthenticatedPortfolioRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
+  AuthenticatedMarketsSymbolRoute: typeof AuthenticatedMarketsSymbolRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -540,6 +561,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPortfolioRoute: AuthenticatedPortfolioRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
+  AuthenticatedMarketsSymbolRoute: AuthenticatedMarketsSymbolRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

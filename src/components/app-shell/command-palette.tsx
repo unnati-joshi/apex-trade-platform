@@ -54,7 +54,7 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
               <CommandItem
                 key={r.symbol}
                 value={`sym-${r.symbol}-${r.name}`}
-                onSelect={() => go("/watchlist")}
+                onSelect={() => goSymbol(r.symbol)}
               >
                 <TrendingUp className="mr-2 h-4 w-4 text-muted-foreground" />
                 <div className="flex flex-1 items-center gap-3">

@@ -3,7 +3,7 @@ import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
 } from "@/components/ui/command";
 import {
-  BarChart3, Bot, Briefcase, ListChecks, LogOut, Settings, TrendingUp, Wallet,
+  BarChart3, Bot, Briefcase, ListChecks, LogOut, Newspaper, Settings, TrendingUp, Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSymbolSearch } from "@/lib/market";

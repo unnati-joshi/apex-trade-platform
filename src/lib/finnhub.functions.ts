@@ -60,7 +60,7 @@ export const getQuotes = createServerFn({ method: "POST" })
     });
   });
 
-// ---------------- Candles (via /stock/candle if available; falls back to synthesized daily from quote) ----------------
+// ---------------- Candles ----------------
 interface FhCandles { c: number[]; h: number[]; l: number[]; o: number[]; t: number[]; v: number[]; s: string }
 
 export const getCandles = createServerFn({ method: "GET" })
@@ -68,7 +68,7 @@ export const getCandles = createServerFn({ method: "GET" })
     z.object({
       symbol: z.string().min(1).max(20),
       resolution: z.enum(["1", "5", "15", "30", "60", "D", "W", "M"]).default("D"),
-      days: z.number().int().min(1).max(365).default(90),
+      days: z.number().int().min(1).max(3650).default(180),
     }).parse(d),
   )
   .handler(async ({ data }) => {
@@ -96,8 +96,8 @@ export const searchSymbols = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const r = await fh<FhSearch>("/search", { q: data.query });
     return (r.result ?? [])
-      .filter((x) => x.type === "Common Stock" || x.type === "ETP" || x.type === "ETF")
-      .slice(0, 15)
+      .filter((x) => x.type === "Common Stock" || x.type === "ETP" || x.type === "ETF" || x.type === "")
+      .slice(0, 20)
       .map((x) => ({ symbol: x.displaySymbol || x.symbol, name: x.description }));
   });
 
@@ -108,14 +108,31 @@ export const getMarketNews = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ category: z.enum(["general", "forex", "crypto", "merger"]).default("general") }).parse(d))
   .handler(async ({ data }) => {
     const r = await fh<FhNews[]>("/news", { category: data.category });
-    return (r ?? []).slice(0, 20).map((n) => ({
+    return (r ?? []).slice(0, 40).map((n) => ({
       id: n.id, headline: n.headline, summary: n.summary, image: n.image,
       source: n.source, url: n.url, datetime: n.datetime * 1000, category: n.category,
     }));
   });
 
+export const getCompanyNews = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ symbol: z.string().min(1).max(20) }).parse(d))
+  .handler(async ({ data }) => {
+    const to = new Date();
+    const from = new Date(to.getTime() - 30 * 86400_000);
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    try {
+      const r = await fh<FhNews[]>("/company-news", { symbol: data.symbol.toUpperCase(), from: fmt(from), to: fmt(to) });
+      return (r ?? []).slice(0, 25).map((n) => ({
+        id: n.id, headline: n.headline, summary: n.summary, image: n.image,
+        source: n.source, url: n.url, datetime: n.datetime * 1000,
+      }));
+    } catch {
+      return [];
+    }
+  });
+
 // ---------------- Company profile ----------------
-interface FhProfile { name: string; ticker: string; exchange: string; finnhubIndustry: string; logo: string; marketCapitalization: number; weburl: string; country: string; currency: string }
+interface FhProfile { name: string; ticker: string; exchange: string; finnhubIndustry: string; logo: string; marketCapitalization: number; weburl: string; country: string; currency: string; ipo: string; shareOutstanding: number; phone: string }
 
 export const getCompanyProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ symbol: z.string().min(1).max(20) }).parse(d))
@@ -131,5 +148,54 @@ export const getCompanyProfile = createServerFn({ method: "GET" })
       website: p.weburl || "",
       country: p.country || "",
       currency: p.currency || "USD",
+      ipo: p.ipo || "",
+      sharesOutstanding: (p.shareOutstanding ?? 0) * 1_000_000,
     };
+  });
+
+// ---------------- Basic financials (52w, PE, EPS, div, beta) ----------------
+interface FhMetric {
+  metric?: Record<string, number | null | undefined>;
+}
+
+export const getBasicFinancials = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ symbol: z.string().min(1).max(20) }).parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const r = await fh<FhMetric>("/stock/metric", { symbol: data.symbol.toUpperCase(), metric: "all" });
+      const m = r.metric ?? {};
+      const num = (k: string) => {
+        const v = m[k];
+        return typeof v === "number" ? v : null;
+      };
+      return {
+        peRatio: num("peBasicExclExtraTTM") ?? num("peNormalizedAnnual") ?? num("peInclExtraTTM"),
+        eps: num("epsInclExtraItemsTTM") ?? num("epsBasicExclExtraordinaryItemsTTM") ?? num("epsAnnual"),
+        beta: num("beta"),
+        dividendYield: num("currentDividendYieldTTM") ?? num("dividendYieldIndicatedAnnual"),
+        week52High: num("52WeekHigh"),
+        week52Low: num("52WeekLow"),
+        priceToBook: num("pbAnnual") ?? num("pbQuarterly"),
+        profitMargin: num("netProfitMarginTTM"),
+        revenueTTM: num("revenuePerShareTTM"),
+        roeTTM: num("roeTTM"),
+        debtToEquity: num("totalDebt/totalEquityAnnual"),
+      };
+    } catch {
+      return null;
+    }
+  });
+
+// ---------------- Analyst recommendations ----------------
+interface FhReco { buy: number; hold: number; sell: number; strongBuy: number; strongSell: number; period: string; symbol: string }
+
+export const getRecommendations = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ symbol: z.string().min(1).max(20) }).parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const r = await fh<FhReco[]>("/stock/recommendation", { symbol: data.symbol.toUpperCase() });
+      return (r ?? []).slice(0, 6);
+    } catch {
+      return [];
+    }
   });

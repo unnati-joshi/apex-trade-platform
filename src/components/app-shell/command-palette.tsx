@@ -3,7 +3,7 @@ import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
 } from "@/components/ui/command";
 import {
-  BarChart3, Bot, Briefcase, ListChecks, LogOut, Settings, TrendingUp, Wallet,
+  BarChart3, Bot, Briefcase, ListChecks, LogOut, Newspaper, Settings, TrendingUp, Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSymbolSearch } from "@/lib/market";
@@ -29,6 +29,10 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
   }, [open, setOpen]);
 
   function go(to: string) { setOpen(false); navigate({ to }); }
+  function goSymbol(sym: string) {
+    setOpen(false);
+    navigate({ to: "/markets/$symbol", params: { symbol: sym } });
+  }
 
   async function signOut() {
     setOpen(false);
@@ -50,7 +54,7 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
               <CommandItem
                 key={r.symbol}
                 value={`sym-${r.symbol}-${r.name}`}
-                onSelect={() => go("/watchlist")}
+                onSelect={() => goSymbol(r.symbol)}
               >
                 <TrendingUp className="mr-2 h-4 w-4 text-muted-foreground" />
                 <div className="flex flex-1 items-center gap-3">
@@ -67,6 +71,7 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
           <CommandItem onSelect={() => go("/watchlist")}><ListChecks className="mr-2 h-4 w-4" /> Watchlist</CommandItem>
           <CommandItem onSelect={() => go("/portfolio")}><Briefcase className="mr-2 h-4 w-4" /> Portfolio</CommandItem>
           <CommandItem onSelect={() => go("/orders")}><Wallet className="mr-2 h-4 w-4" /> Orders</CommandItem>
+          <CommandItem onSelect={() => go("/news")}><Newspaper className="mr-2 h-4 w-4" /> News</CommandItem>
           <CommandItem onSelect={() => go("/ai")}><Bot className="mr-2 h-4 w-4" /> AI Co-pilot</CommandItem>
           <CommandItem onSelect={() => go("/settings")}><Settings className="mr-2 h-4 w-4" /> Settings</CommandItem>
         </CommandGroup>

@@ -8,7 +8,10 @@ import {
   getCandles as getCandlesFn,
   searchSymbols as searchSymbolsFn,
   getMarketNews as getMarketNewsFn,
+  getCompanyNews as getCompanyNewsFn,
   getCompanyProfile as getCompanyProfileFn,
+  getBasicFinancials as getBasicFinancialsFn,
+  getRecommendations as getRecommendationsFn,
 } from "./finnhub.functions";
 
 export interface Quote {
@@ -125,6 +128,36 @@ export function useCompanyProfile(symbol: string | undefined | null) {
     enabled: !!symbol,
     queryFn: () => getCompanyProfile({ data: { symbol: symbol! } }),
     staleTime: 24 * 60 * 60_000,
+  });
+}
+
+export function useCompanyNews(symbol: string | undefined | null) {
+  const getCompanyNews = useServerFn(getCompanyNewsFn);
+  return useQuery({
+    queryKey: ["fh:cnews", symbol],
+    enabled: !!symbol,
+    queryFn: () => getCompanyNews({ data: { symbol: symbol! } }),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useBasicFinancials(symbol: string | undefined | null) {
+  const fn = useServerFn(getBasicFinancialsFn);
+  return useQuery({
+    queryKey: ["fh:metric", symbol],
+    enabled: !!symbol,
+    queryFn: () => fn({ data: { symbol: symbol! } }),
+    staleTime: 60 * 60_000,
+  });
+}
+
+export function useRecommendations(symbol: string | undefined | null) {
+  const fn = useServerFn(getRecommendationsFn);
+  return useQuery({
+    queryKey: ["fh:reco", symbol],
+    enabled: !!symbol,
+    queryFn: () => fn({ data: { symbol: symbol! } }),
+    staleTime: 60 * 60_000,
   });
 }
 

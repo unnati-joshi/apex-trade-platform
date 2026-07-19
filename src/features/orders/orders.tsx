@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { getQuote, searchSymbols } from "@/lib/mock-market";
+import { useQuote, useSymbolSearch, symbolMeta } from "@/lib/market";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,19 +33,23 @@ interface Order {
   avg_fill_price: number | null; tif: string; created_at: string; submitted_at: string | null;
 }
 
-export function OrdersPage() {
+export function OrdersPage({ initialSymbol, initialSide }: { initialSymbol?: string; initialSide?: "buy" | "sell" } = {}) {
   const qc = useQueryClient();
-  const [symbol, setSymbol] = useState("AAPL");
-  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [symbol, setSymbol] = useState(initialSymbol?.toUpperCase() ?? "AAPL");
+  const [side, setSide] = useState<"buy" | "sell">(initialSide ?? "buy");
   const [type, setType] = useState<"market" | "limit" | "stop" | "stop_limit" | "trailing_stop">("market");
   const [tif, setTif] = useState<"day" | "gtc" | "ioc" | "fok">("day");
   const [qty, setQty] = useState("10");
   const [limit, setLimit] = useState("");
   const [stop, setStop] = useState("");
 
-  const quote = useMemo(() => getQuote(symbol), [symbol]);
-  const est = Number(qty || 0) * (Number(limit || quote.price));
-  const fee = est * 0.0005; // 5 bps demo commission
+  const { data: quote } = useQuote(symbol);
+  const { data: searchResults = [] } = useSymbolSearch(symbol.length >= 1 && symbol.length <= 5 ? symbol : "");
+  const price = quote?.price ?? 0;
+  const changePct = quote?.changePct ?? 0;
+  const displayName = symbolMeta(symbol).name;
+  const est = Number(qty || 0) * (Number(limit || price));
+  const fee = est * 0.0005;
 
   const { data: portfolioId } = useQuery({
     queryKey: ["orders:pf"],
@@ -93,7 +97,7 @@ export function OrdersPage() {
         _quantity: parsed.data.quantity,
         _limit_price: (parsed.data.limit_price ?? null) as unknown as number,
         _stop_price: (parsed.data.stop_price ?? null) as unknown as number,
-        _mark_price: quote.price,
+        _mark_price: price,
       });
       if (error) throw new Error(error.message);
       return data;
@@ -146,12 +150,12 @@ export function OrdersPage() {
               <Label>Symbol</Label>
               <Input value={symbol} onChange={(e) => setSymbol(e.target.value.toUpperCase())} placeholder="AAPL" list="symbols" />
               <datalist id="symbols">
-                {searchSymbols("").map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
+                {searchResults.map((s) => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
               </datalist>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{quote.name}</span>
+                <span className="truncate">{displayName}</span>
                 <span className="numeric">
-                  {formatCurrency(quote.price)} <span className={pctClass(quote.changePct)}>{formatPercent(quote.changePct)}</span>
+                  {formatCurrency(price)} <span className={pctClass(changePct)}>{formatPercent(changePct)}</span>
                 </span>
               </div>
             </div>
@@ -191,13 +195,13 @@ export function OrdersPage() {
             {(type === "limit" || type === "stop_limit") && (
               <div className="space-y-2">
                 <Label>Limit price</Label>
-                <Input inputMode="decimal" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={String(quote.price)} />
+                <Input inputMode="decimal" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={String(price)} />
               </div>
             )}
             {(type === "stop" || type === "stop_limit" || type === "trailing_stop") && (
               <div className="space-y-2">
                 <Label>Stop price</Label>
-                <Input inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} placeholder={String(quote.price)} />
+                <Input inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} placeholder={String(price)} />
               </div>
             )}
 

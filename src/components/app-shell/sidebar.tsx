@@ -7,6 +7,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ListChecks,
+  Newspaper,
   Search,
   Settings,
   Wallet,
@@ -28,6 +29,7 @@ const ITEMS: Item[] = [
   { to: "/watchlist", label: "Watchlist", icon: <ListChecks className="h-4 w-4" />, hint: "G W" },
   { to: "/portfolio", label: "Portfolio", icon: <Briefcase className="h-4 w-4" />, hint: "G P" },
   { to: "/orders", label: "Orders", icon: <Wallet className="h-4 w-4" />, hint: "G O" },
+  { to: "/news", label: "News", icon: <Newspaper className="h-4 w-4" />, hint: "G N" },
   { to: "/ai", label: "AI Co-pilot", icon: <Bot className="h-4 w-4" />, hint: "G A" },
 ];
 

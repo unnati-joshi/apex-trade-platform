@@ -131,6 +131,36 @@ export function useCompanyProfile(symbol: string | undefined | null) {
   });
 }
 
+export function useCompanyNews(symbol: string | undefined | null) {
+  const getCompanyNews = useServerFn(getCompanyNewsFn);
+  return useQuery({
+    queryKey: ["fh:cnews", symbol],
+    enabled: !!symbol,
+    queryFn: () => getCompanyNews({ data: { symbol: symbol! } }),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useBasicFinancials(symbol: string | undefined | null) {
+  const fn = useServerFn(getBasicFinancialsFn);
+  return useQuery({
+    queryKey: ["fh:metric", symbol],
+    enabled: !!symbol,
+    queryFn: () => fn({ data: { symbol: symbol! } }),
+    staleTime: 60 * 60_000,
+  });
+}
+
+export function useRecommendations(symbol: string | undefined | null) {
+  const fn = useServerFn(getRecommendationsFn);
+  return useQuery({
+    queryKey: ["fh:reco", symbol],
+    enabled: !!symbol,
+    queryFn: () => fn({ data: { symbol: symbol! } }),
+    staleTime: 60 * 60_000,
+  });
+}
+
 // Derived helpers
 export function useTopMovers() {
   const { data: quotes = [], isLoading } = useQuotes(UNIVERSE.map((u) => u.symbol));

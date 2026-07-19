@@ -97,7 +97,7 @@ export function OrdersPage() {
         _quantity: parsed.data.quantity,
         _limit_price: (parsed.data.limit_price ?? null) as unknown as number,
         _stop_price: (parsed.data.stop_price ?? null) as unknown as number,
-        _mark_price: quote.price,
+        _mark_price: price,
       });
       if (error) throw new Error(error.message);
       return data;

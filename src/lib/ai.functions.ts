@@ -56,15 +56,19 @@ export const chatAi = createServerFn({ method: "POST" })
       ? `Portfolio: ${pf.name} · Cash ${pf.cash_balance} ${pf.base_currency}. Positions: ${(holdings ?? []).map(h => `${h.symbol}×${h.quantity}@${h.avg_cost}`).join(", ") || "none"}.`
       : "No portfolio.";
 
+    // Extract ticker mentions from the last user message and enrich with a live snapshot
+    const mentioned = extractTickers(data.message, (holdings ?? []).map((h) => h.symbol));
+    const snapshot = await buildSnapshot(mentioned);
+
     const messages: ChatMessage[] = [
-      { role: "system", content: SYSTEM + "\n\nUser context: " + ctxLine },
+      { role: "system", content: `${SYSTEM}\n\nUser context: ${ctxLine}${snapshot ? `\n\nLive market snapshot (real-time via Finnhub):\n${snapshot}` : ""}` },
       ...((history as ChatMessage[]) ?? []),
     ];
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-      body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages }),
+      body: JSON.stringify({ model: "google/gemini-2.5-flash", messages }),
     });
     if (res.status === 429) throw new Error("Rate limited — try again in a moment.");
     if (res.status === 402) throw new Error("AI credits exhausted for this workspace.");

@@ -150,12 +150,12 @@ export function OrdersPage() {
               <Label>Symbol</Label>
               <Input value={symbol} onChange={(e) => setSymbol(e.target.value.toUpperCase())} placeholder="AAPL" list="symbols" />
               <datalist id="symbols">
-                {searchSymbols("").map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
+                {searchResults.map((s) => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
               </datalist>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{quote.name}</span>
+                <span className="truncate">{displayName}</span>
                 <span className="numeric">
-                  {formatCurrency(quote.price)} <span className={pctClass(quote.changePct)}>{formatPercent(quote.changePct)}</span>
+                  {formatCurrency(price)} <span className={pctClass(changePct)}>{formatPercent(changePct)}</span>
                 </span>
               </div>
             </div>

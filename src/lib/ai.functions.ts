@@ -101,3 +101,58 @@ export const getMessages = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
     return msgs ?? [];
   });
+
+// ---- Snapshot helpers (server-only Finnhub fetch, plain HTTP) ----
+
+const FINNHUB_BASE = "https://finnhub.io/api/v1";
+
+const KNOWN_TICKERS = new Set([
+  "AAPL","MSFT","NVDA","GOOGL","GOOG","META","AMZN","TSLA","AMD","AVGO","NFLX","JPM","V","MA","BRK.B",
+  "XOM","CVX","JNJ","UNH","PG","KO","DIS","BA","SPY","QQQ","DIA","IWM","BTC","ETH","INTC","ORCL","CRM",
+]);
+
+function extractTickers(text: string, holdingSyms: string[]): string[] {
+  const found = new Set<string>();
+  for (const s of holdingSyms) if (s) found.add(s.toUpperCase());
+  const dollar = text.match(/\$([A-Z]{1,5})\b/g) ?? [];
+  for (const t of dollar) found.add(t.slice(1));
+  const upper = text.match(/\b[A-Z]{2,5}\b/g) ?? [];
+  for (const t of upper) if (KNOWN_TICKERS.has(t)) found.add(t);
+  return Array.from(found).slice(0, 5);
+}
+
+async function fetchJson<T>(path: string, params: Record<string, string | number>): Promise<T | null> {
+  const key = process.env.FINNHUB_API_KEY;
+  if (!key) return null;
+  const url = new URL(FINNHUB_BASE + path);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+  url.searchParams.set("token", key);
+  try {
+    const r = await fetch(url.toString());
+    if (!r.ok) return null;
+    return (await r.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function buildSnapshot(symbols: string[]): Promise<string> {
+  if (symbols.length === 0) return "";
+  const rows = await Promise.all(symbols.map(async (sym) => {
+    const [q, p, m] = await Promise.all([
+      fetchJson<{ c: number; d: number; dp: number; h: number; l: number; o: number; pc: number }>("/quote", { symbol: sym }),
+      fetchJson<{ name?: string; finnhubIndustry?: string; marketCapitalization?: number }>("/stock/profile2", { symbol: sym }),
+      fetchJson<{ metric?: Record<string, number | null | undefined> }>("/stock/metric", { symbol: sym, metric: "all" }),
+    ]);
+    if (!q || !q.c) return null;
+    const met = m?.metric ?? {};
+    const num = (k: string) => (typeof met[k] === "number" ? (met[k] as number).toFixed(2) : "—");
+    return [
+      `- ${sym} (${p?.name ?? sym}${p?.finnhubIndustry ? ` · ${p.finnhubIndustry}` : ""})`,
+      `  price=${q.c.toFixed(2)} chg=${q.d.toFixed(2)} (${q.dp.toFixed(2)}%) open=${q.o.toFixed(2)} high=${q.h.toFixed(2)} low=${q.l.toFixed(2)} prevClose=${q.pc.toFixed(2)}`,
+      `  52wH=${num("52WeekHigh")} 52wL=${num("52WeekLow")} PE=${num("peBasicExclExtraTTM")} EPS=${num("epsInclExtraItemsTTM")} beta=${num("beta")} divYield=${num("currentDividendYieldTTM")}% mcap=${p?.marketCapitalization ? (p.marketCapitalization / 1000).toFixed(1) + "B" : "—"}`,
+    ].join("\n");
+  }));
+  return rows.filter(Boolean).join("\n");
+}
+

@@ -8,7 +8,10 @@ import {
   getCandles as getCandlesFn,
   searchSymbols as searchSymbolsFn,
   getMarketNews as getMarketNewsFn,
+  getCompanyNews as getCompanyNewsFn,
   getCompanyProfile as getCompanyProfileFn,
+  getBasicFinancials as getBasicFinancialsFn,
+  getRecommendations as getRecommendationsFn,
 } from "./finnhub.functions";
 
 export interface Quote {

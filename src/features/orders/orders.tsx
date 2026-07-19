@@ -195,13 +195,13 @@ export function OrdersPage() {
             {(type === "limit" || type === "stop_limit") && (
               <div className="space-y-2">
                 <Label>Limit price</Label>
-                <Input inputMode="decimal" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={String(quote.price)} />
+                <Input inputMode="decimal" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={String(price)} />
               </div>
             )}
             {(type === "stop" || type === "stop_limit" || type === "trailing_stop") && (
               <div className="space-y-2">
                 <Label>Stop price</Label>
-                <Input inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} placeholder={String(quote.price)} />
+                <Input inputMode="decimal" value={stop} onChange={(e) => setStop(e.target.value)} placeholder={String(price)} />
               </div>
             )}
 

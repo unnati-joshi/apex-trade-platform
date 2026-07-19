@@ -32,6 +32,7 @@ import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authentica
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedPortfolioRouteImport } from './routes/_authenticated/portfolio'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AuthenticatedNewsRouteImport } from './routes/_authenticated/news'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedMarketsSymbolRouteImport } from './routes/_authenticated/markets.$symbol'
@@ -150,6 +151,11 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNewsRoute = AuthenticatedNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/ai': typeof AuthenticatedAiRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/news': typeof AuthenticatedNewsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/ai': typeof AuthenticatedAiRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/news': typeof AuthenticatedNewsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/news': typeof AuthenticatedNewsRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/portfolio': typeof AuthenticatedPortfolioRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ai'
     | '/dashboard'
+    | '/news'
     | '/orders'
     | '/portfolio'
     | '/settings'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ai'
     | '/dashboard'
+    | '/news'
     | '/orders'
     | '/portfolio'
     | '/settings'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/ai'
     | '/_authenticated/dashboard'
+    | '/_authenticated/news'
     | '/_authenticated/orders'
     | '/_authenticated/portfolio'
     | '/_authenticated/settings'
@@ -520,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/news': {
+      id: '/_authenticated/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof AuthenticatedNewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -547,6 +566,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedNewsRoute: typeof AuthenticatedNewsRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedPortfolioRoute: typeof AuthenticatedPortfolioRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -557,6 +577,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedNewsRoute: AuthenticatedNewsRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedPortfolioRoute: AuthenticatedPortfolioRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,

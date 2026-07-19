@@ -33,10 +33,10 @@ interface Order {
   avg_fill_price: number | null; tif: string; created_at: string; submitted_at: string | null;
 }
 
-export function OrdersPage() {
+export function OrdersPage({ initialSymbol, initialSide }: { initialSymbol?: string; initialSide?: "buy" | "sell" } = {}) {
   const qc = useQueryClient();
-  const [symbol, setSymbol] = useState("AAPL");
-  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [symbol, setSymbol] = useState(initialSymbol?.toUpperCase() ?? "AAPL");
+  const [side, setSide] = useState<"buy" | "sell">(initialSide ?? "buy");
   const [type, setType] = useState<"market" | "limit" | "stop" | "stop_limit" | "trailing_stop">("market");
   const [tif, setTif] = useState<"day" | "gtc" | "ioc" | "fok">("day");
   const [qty, setQty] = useState("10");

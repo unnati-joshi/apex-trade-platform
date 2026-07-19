@@ -71,6 +71,7 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
           <CommandItem onSelect={() => go("/watchlist")}><ListChecks className="mr-2 h-4 w-4" /> Watchlist</CommandItem>
           <CommandItem onSelect={() => go("/portfolio")}><Briefcase className="mr-2 h-4 w-4" /> Portfolio</CommandItem>
           <CommandItem onSelect={() => go("/orders")}><Wallet className="mr-2 h-4 w-4" /> Orders</CommandItem>
+          <CommandItem onSelect={() => go("/news")}><Newspaper className="mr-2 h-4 w-4" /> News</CommandItem>
           <CommandItem onSelect={() => go("/ai")}><Bot className="mr-2 h-4 w-4" /> AI Co-pilot</CommandItem>
           <CommandItem onSelect={() => go("/settings")}><Settings className="mr-2 h-4 w-4" /> Settings</CommandItem>
         </CommandGroup>

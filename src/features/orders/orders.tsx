@@ -43,9 +43,13 @@ export function OrdersPage() {
   const [limit, setLimit] = useState("");
   const [stop, setStop] = useState("");
 
-  const quote = useMemo(() => getQuote(symbol), [symbol]);
-  const est = Number(qty || 0) * (Number(limit || quote.price));
-  const fee = est * 0.0005; // 5 bps demo commission
+  const { data: quote } = useQuote(symbol);
+  const { data: searchResults = [] } = useSymbolSearch(symbol.length >= 1 && symbol.length <= 5 ? symbol : "");
+  const price = quote?.price ?? 0;
+  const changePct = quote?.changePct ?? 0;
+  const displayName = symbolMeta(symbol).name;
+  const est = Number(qty || 0) * (Number(limit || price));
+  const fee = est * 0.0005;
 
   const { data: portfolioId } = useQuery({
     queryKey: ["orders:pf"],

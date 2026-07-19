@@ -29,6 +29,10 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (o: 
   }, [open, setOpen]);
 
   function go(to: string) { setOpen(false); navigate({ to }); }
+  function goSymbol(sym: string) {
+    setOpen(false);
+    navigate({ to: "/markets/$symbol", params: { symbol: sym } });
+  }
 
   async function signOut() {
     setOpen(false);

@@ -89,14 +89,35 @@ export function OrdersPage({ initialSymbol, initialSide }: { initialSymbol?: str
       if ((type === "stop" || type === "stop_limit" || type === "trailing_stop") && !parsed.data.stop_price) throw new Error("Stop price required");
       if (!portfolioId) throw new Error("No portfolio found. Reload the page.");
 
-      // Server fetches a fresh live price from Finnhub, then executes atomically.
-      return await placeOrder({ data: { portfolioId, ...parsed.data } });
+      // Server fetches a fresh live price; pass the client's cached quote as
+      // a fallback so a transient market-data rate limit doesn't kill the order.
+      return await placeOrder({
+        data: { portfolioId, ...parsed.data, fallback_mark: price > 0 ? price : undefined },
+      });
     },
-    onSuccess: () => {
-      toast.success(`${side === "buy" ? "Bought" : "Sold"} ${qty} ${symbol.toUpperCase()}`);
+    onSuccess: (res) => {
+      const filled = res?.status === "filled";
+      toast.success(
+        filled
+          ? `${side === "buy" ? "Bought" : "Sold"} ${qty} ${symbol.toUpperCase()} @ ${res?.fill_price ? formatCurrency(res.fill_price) : ""}`
+          : `${type.replace("_", " ")} order placed for ${qty} ${symbol.toUpperCase()}`,
+      );
       qc.invalidateQueries();
     },
-    onError: (e: Error) => toast.error("Order rejected", { description: e.message }),
+    onError: (e: Error) => {
+      console.error("[order] failed", e);
+      const raw = e.message || "";
+      let title = "Order rejected";
+      let description = raw;
+      if (/insufficient buying power/i.test(raw)) title = "Insufficient buying power";
+      else if (/cannot sell|do not hold|cash accounts cannot short/i.test(raw)) title = "Insufficient holdings";
+      else if (/rate.?limit/i.test(raw)) { title = "Market data rate-limited"; description = "Retry in a few seconds."; }
+      else if (/market price unavailable|no live price/i.test(raw)) title = "Market price unavailable";
+      else if (/not authenticated|unauthorized/i.test(raw)) title = "Please sign in again";
+      else if (/portfolio not found/i.test(raw)) title = "Portfolio not found";
+      else if (/permission|rls/i.test(raw)) title = "Permission denied";
+      toast.error(title, { description });
+    },
   });
 
   const cancel = useMutation({

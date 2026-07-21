@@ -7,13 +7,26 @@ const Input = z.object({
   message: z.string().min(1).max(4000),
 });
 
-const SYSTEM = `You are Apex, an institutional trading co-pilot.
-- You are concise, precise, and non-speculative. Speak like a professional quant strategist.
-- When live data for a symbol is provided in the "Live market snapshot" section, use those exact numbers; never invent prices, P/E, or 52w figures.
-- When asked for analysis, structure your answer with markdown: short paragraphs, bullet points, and GitHub-flavoured tables for financial metrics or side-by-side comparisons.
-- If the user asks about technical analysis, discuss trend, momentum (RSI/MACD framing), support/resistance, and volume in plain language.
-- Never provide personalised financial advice or guarantee outcomes. Add a one-line risk caveat when suggesting positioning.
+const SYSTEM = `You are Apex, an institutional trading co-pilot and market educator.
+
+## Behaviour
+- Be concise, precise, and professional — write like a senior quant strategist.
+- ALWAYS answer the user's question. Never refuse just because live data is missing.
+- If a "Live market snapshot" section is present, use those exact numbers — never invent prices, PE, EPS, 52w, or market cap figures.
+- If live data for a symbol is NOT present, still answer using: general market knowledge, historical context, fundamentals you know, sector dynamics, macro drivers, and recent widely-known events. Add ONE short line noting which real-time metrics were unavailable.
+- For general finance questions (RSI, MACD, options, PE, ETFs, inflation, bear market, volatility, etc.) answer fully from your knowledge — no live data needed.
+
+## Formatting
+- Use rich markdown: short paragraphs, bullet lists, and GitHub-flavoured tables for metrics and side-by-side comparisons.
+- For "explain volatility / why did X move" style questions, structure as: **Snapshot** → **Key drivers** (bulleted) → **Technical read** (trend, momentum via RSI/MACD framing, support/resistance) → **Fundamental read** → **Bull vs Bear** → **Risk caveat**.
+- For "compare A vs B", produce a markdown comparison table (Price, Change %, Market Cap, PE, EPS, Beta, Div Yield, 52w range) followed by a short verdict.
+- For "should I buy X", give: valuation snapshot, trend read, catalysts, risks, opportunities, and a one-line balanced conclusion — never a personalised recommendation.
+
+## Guardrails
+- Do not provide personalised financial advice or guarantee outcomes.
+- End positioning/strategy answers with a one-line risk caveat.
 `;
+
 
 interface ChatMessage { role: "user" | "assistant" | "system"; content: string }
 
@@ -138,21 +151,37 @@ async function fetchJson<T>(path: string, params: Record<string, string | number
 
 async function buildSnapshot(symbols: string[]): Promise<string> {
   if (symbols.length === 0) return "";
+  const today = new Date();
+  const monthAgo = new Date(today.getTime() - 30 * 86400_000);
+  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+
   const rows = await Promise.all(symbols.map(async (sym) => {
-    const [q, p, m] = await Promise.all([
+    const [q, p, m, reco, news] = await Promise.all([
       fetchJson<{ c: number; d: number; dp: number; h: number; l: number; o: number; pc: number }>("/quote", { symbol: sym }),
-      fetchJson<{ name?: string; finnhubIndustry?: string; marketCapitalization?: number }>("/stock/profile2", { symbol: sym }),
+      fetchJson<{ name?: string; finnhubIndustry?: string; marketCapitalization?: number; country?: string; ipo?: string; weburl?: string }>("/stock/profile2", { symbol: sym }),
       fetchJson<{ metric?: Record<string, number | null | undefined> }>("/stock/metric", { symbol: sym, metric: "all" }),
+      fetchJson<Array<{ buy: number; hold: number; sell: number; strongBuy: number; strongSell: number; period: string }>>("/stock/recommendation", { symbol: sym }),
+      fetchJson<Array<{ headline: string; datetime: number; source: string }>>("/company-news", { symbol: sym, from: fmt(monthAgo), to: fmt(today) }),
     ]);
-    if (!q || !q.c) return null;
+    if (!q || !q.c) {
+      return `- ${sym}: live quote unavailable (symbol may be unsupported or provider rate-limited). Answer using general knowledge and note this in your reply.`;
+    }
     const met = m?.metric ?? {};
     const num = (k: string) => (typeof met[k] === "number" ? (met[k] as number).toFixed(2) : "—");
+    const r = reco?.[0];
+    const recoLine = r
+      ? `  analysts(latest ${r.period}): strongBuy=${r.strongBuy} buy=${r.buy} hold=${r.hold} sell=${r.sell} strongSell=${r.strongSell}`
+      : "";
+    const headlines = (news ?? []).slice(0, 5).map((n) => `    • [${n.source}] ${n.headline}`).join("\n");
     return [
-      `- ${sym} (${p?.name ?? sym}${p?.finnhubIndustry ? ` · ${p.finnhubIndustry}` : ""})`,
+      `- ${sym} (${p?.name ?? sym}${p?.finnhubIndustry ? ` · ${p.finnhubIndustry}` : ""}${p?.country ? ` · ${p.country}` : ""})`,
       `  price=${q.c.toFixed(2)} chg=${q.d.toFixed(2)} (${q.dp.toFixed(2)}%) open=${q.o.toFixed(2)} high=${q.h.toFixed(2)} low=${q.l.toFixed(2)} prevClose=${q.pc.toFixed(2)}`,
-      `  52wH=${num("52WeekHigh")} 52wL=${num("52WeekLow")} PE=${num("peBasicExclExtraTTM")} EPS=${num("epsInclExtraItemsTTM")} beta=${num("beta")} divYield=${num("currentDividendYieldTTM")}% mcap=${p?.marketCapitalization ? (p.marketCapitalization / 1000).toFixed(1) + "B" : "—"}`,
-    ].join("\n");
+      `  52wH=${num("52WeekHigh")} 52wL=${num("52WeekLow")} PE=${num("peBasicExclExtraTTM")} EPS=${num("epsInclExtraItemsTTM")} beta=${num("beta")} divYield=${num("currentDividendYieldTTM")}% ROE=${num("roeTTM")}% margin=${num("netProfitMarginTTM")}% mcap=${p?.marketCapitalization ? (p.marketCapitalization / 1000).toFixed(1) + "B" : "—"}`,
+      recoLine,
+      headlines ? `  recent headlines (last 30d):\n${headlines}` : "",
+    ].filter(Boolean).join("\n");
   }));
   return rows.filter(Boolean).join("\n");
 }
+
 

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuote, useSymbolSearch, symbolMeta } from "@/lib/market";
+import { placeOrder as placeOrderFn } from "@/lib/orders.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +74,7 @@ export function OrdersPage({ initialSymbol, initialSide }: { initialSymbol?: str
     refetchInterval: 15_000,
   });
 
+  const placeOrder = useServerFn(placeOrderFn);
   const place = useMutation({
     mutationFn: async () => {
       const parsed = OrderSchema.safeParse({
@@ -86,21 +89,8 @@ export function OrdersPage({ initialSymbol, initialSide }: { initialSymbol?: str
       if ((type === "stop" || type === "stop_limit" || type === "trailing_stop") && !parsed.data.stop_price) throw new Error("Stop price required");
       if (!portfolioId) throw new Error("No portfolio found. Reload the page.");
 
-      // Server-side atomic placement + validation via RPC.
-      // Blocks selling more than held (cash accounts) and enforces buying power on margin.
-      const { data, error } = await supabase.rpc("place_paper_order", {
-        _portfolio_id: portfolioId,
-        _symbol: parsed.data.symbol,
-        _side: parsed.data.side,
-        _type: parsed.data.type,
-        _tif: parsed.data.tif,
-        _quantity: parsed.data.quantity,
-        _limit_price: (parsed.data.limit_price ?? null) as unknown as number,
-        _stop_price: (parsed.data.stop_price ?? null) as unknown as number,
-        _mark_price: price,
-      });
-      if (error) throw new Error(error.message);
-      return data;
+      // Server fetches a fresh live price from Finnhub, then executes atomically.
+      return await placeOrder({ data: { portfolioId, ...parsed.data } });
     },
     onSuccess: () => {
       toast.success(`${side === "buy" ? "Bought" : "Sold"} ${qty} ${symbol.toUpperCase()}`);
